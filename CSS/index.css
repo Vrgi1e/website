@@ -7,6 +7,24 @@
     margin:0px;
 }
 
+#container {
+    position:relative;
+    height: fit-content;
+}
+
+.content {
+    width: fit-content;
+    background: #FFFFFF;
+    position: relative;
+    z-index: 100;
+}
+.canvasContainer {
+    position:absolute;
+    top:0px;
+    left:0px;
+    z-index: -100;
+}
+
 h1 {
     margin:0px;
 }

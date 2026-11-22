@@ -1,24 +1,38 @@
+<!DOCTYPE html>
+
 <html>
+
 <head>
     <title>Des trucs</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link href="./CSS/index.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="./icon.png">
+
 </head>
+
 <body>
-    <div id="titre">
-        <h1><span> B.a.Bob </span></h1>
+    <div id="container">
+        <div class=content>
+            <div class="titre">
+                <h1><span> B.a.Bob </span></h1>
+            </div>
+            <div class="Links">
+                <h2>
+                    Links
+                </h2>
+                ║<br>
+                ╠<a href="/jellyfin/" target="_blank"> Jellyfin </a><br>
+                ╠<a href="/qbt/" target="_blank"> Qbittorrent </a><br>
+                ╚<a href="https://github.com/Vrgi1e/" target="_blank"> GitHub.com </a><br>
+            </div>
+        </div>
+        <div class=canvasContainer>
+            <canvas id="canvas" width="800" height="600"></canvas>
+            <script src="./JS/test.js"></script>
+        </div>
     </div>
-    <div id="Links">
-        <h2>
-            Links
-        </h2>
-            ║<br>
-            ╠<a href="/jellyfin/" target="_blank"> Jellyfin </a><br>
-            ╠<a href="/qbt/" target="_blank"> Qbittorrent </a><br>
-            ╚<a href="https://github.com/Vrgi1e/" target="_blank"> GitHub.com </a><br>
-    </div>
-    <canvas id=canvas>
-    </canvas>
 </body>
 
 </html>

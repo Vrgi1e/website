@@ -12,15 +12,18 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 var vshader =
     'attribute vec4 position;' +
     'attribute float size;' +
-    'attribute float time;' +
+    'uniform float rotation;' +
     'void main() {' +
-    '   gl_Position = position;' +
+    'float c = cos(rotation);' +
+    'float s = sin(rotation);' +
+    '   vec4 pos = vec4(position.x * c + position.z *s,position.y,position.z * s   - position.x * c, 1.0);' +
+    '   gl_Position = pos;' +
     '   gl_PointSize = size;' +
     '}';
 var fshader =
     'precision mediump float;' +
     'void main() {' +
-    '   gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);' +
+    '   gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);' +
     '}';
 var program = compileShader(gl, vshader, fshader);
 
@@ -28,40 +31,55 @@ var program = compileShader(gl, vshader, fshader);
 // Clear the canvas
 gl.clear(gl.COLOR_BUFFER_BIT);
 
-for (var i = 0; i < 1000; i++) {
-    var a = Math.random() * 2 * Math.PI;
+const POINTS_N = 1000;
+const data = new Float32Array(POINTS_N * 3);
+
+for (var i = 0; i < POINTS_N; i++) {
+    var a = Math.acos(2 * Math.random() - 1);
     var b = Math.random() * 2 * Math.PI;
     var r = 0.5;//Math.random() * 0.5;
 
     var [x, y, z] = sphereToXyz(a, b, r);
 
+    data[i * 3] = x;
+    data[i * 3 + 1] = y;
+    data[i * 3 + 2] = z;
+
     var position = gl.getAttribLocation(program, "position");
     var size = gl.getAttribLocation(program, "size");
-    
+    var rotation = gl.getAttribLocation(program, "rotation");
+    gl.vertexAttrib1f(rotation, 0.0);
     gl.vertexAttrib4f(position, x, y, 0.0, 1.0);
     gl.vertexAttrib1f(size, 2.0);
 }
+const buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-var time = gl.getAttribLocation(program, "time");
-gl.vertexAttrib1f(time, 0.0);
-var startTime = getTime();
+const positionLoc = gl.getAttribLocation(program, "position");
+gl.enableVertexAttribArray(positionLoc);
+gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
 
-function loop() {
-    var currentTime = getTime();
-    var elapsedTime = currentTime - startTime;
-    gl.vertexAttrib1f(time, elapsedTime);
-    // Draw points
-    gl.drawArrays(
-        gl.POINTS, // mode
-        0,         // starting point
-        500          // number of points to draw);
-    );
-    requestAnimationFrame(loop);
-}
+const rotationLoc = gl.getUniformLocation(program, "rotation")
+
+startTime = Date.now();
+let TimeDelta = 0;
 
 requestAnimationFrame(loop);
 
 
+function loop() {
+    TimeDelta = Date.now() - startTime;
+
+    gl.uniform1f(rotationLoc, TimeDelta * 2*Math.PI / 10000);
+    // Draw points
+    gl.drawArrays(
+        gl.POINTS, // mode
+        0,         // starting point
+        1000          // number of points to draw);
+    );
+    requestAnimationFrame(loop);
+}
 
 function sphereToXyz(a, b, r) {
     var x = r * Math.sin(a) * Math.cos(b);

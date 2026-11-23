@@ -37,7 +37,7 @@ const data = new Float32Array(POINTS_N * 3);
 for (var i = 0; i < POINTS_N; i++) {
     var a = Math.acos(2 * Math.random() - 1);
     var b = Math.random() * 2 * Math.PI;
-    var r = 0.5;//Math.random() * 0.5;
+    var r = 0.8;//Math.random() * 0.5;
 
     var [x, y, z] = sphereToXyz(a, b, r);
 

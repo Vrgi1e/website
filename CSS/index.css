@@ -20,8 +20,13 @@
     z-index: 100;
 }
 .canvasContainer {
+    width: 100%;
+    display: flex;
     border: 1px solid red;
-    position:center;
+    position:absolute;
+    top:0px;
+    align-items:center;
+    justify-content: center;
     z-index: -100;
 }
 

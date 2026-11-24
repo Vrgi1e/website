@@ -22,12 +22,14 @@
 .canvasContainer {
     width: 100%;
     display: flex;
-    border: 1px solid red;
     position:absolute;
     top:0px;
     align-items:center;
     justify-content: center;
     z-index: -100;
+}
+#canvas{
+    border: 1px solid red;
 }
 
 h1 {

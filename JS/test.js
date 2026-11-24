@@ -9,6 +9,7 @@ gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
 gl.clear(gl.COLOR_BUFFER_BIT);
 
+//      SHADERS
 var vshader_point_sphere =
     'attribute vec4 position;' +
     'attribute float size;' +
@@ -46,6 +47,7 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 const POINTS_N = 1000;
 const data = new Float32Array(POINTS_N * 3);
 
+//      BUFFER POINTS SPHERE
 const buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
@@ -62,6 +64,7 @@ for (var i = 0; i < POINTS_N; i++) {
 }
 
 gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
 const position_ptr = gl.getAttribLocation(program, "position");
 gl.enableVertexAttribArray(position_ptr);
 gl.vertexAttribPointer(position_ptr, 3, gl.FLOAT, false, 0, 0);
@@ -71,7 +74,7 @@ const rotation_ptr = gl.getUniformLocation(program, "rotation")
 var size = gl.getAttribLocation(program, "size");
 gl.vertexAttrib1f(size, 2.0);
 
-
+//BUFFER POINT SOURIE
 const bufferClick = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, bufferClick);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0.0, 0.0, 0.0, 0.0]), gl.STATIC_DRAW);
@@ -84,15 +87,19 @@ startTime = Date.now();
 let TimeDelta = 0;
 const base_speed = 2 * Math.PI / 10000
 
-let mouse = { x: 0, y: 0, down: false };
-let ressort = { x: 0, y: 0, k_mass: 0.1, velocity: { x: 0, y: 0 }, drag: 0.1};
+let mouse = { x: 0, y: 0, w:0, down: false };
+let ressort = { x: 0, y: 0, k_mass: 0.1, velocity: { x: 0, y: 0 }, drag: 0.1 };
+let ressort_rot = { w: 0, k_inert: 0.1, velocity: 0, drag: 0.1 };
+let sphere_rot = 0;
 canvas.addEventListener("mousedown", function (event) {
     [mouse.x, mouse.y] = mouseToClipSpace(event.clientX, event.clientY);
     ressort.x = mouse.x;
     ressort.y = mouse.y;
+    mouse.w = Math.acos(mouse.x);
+    ressort_rot.w = mouse.w;
     mouse.down = true;
     console.log("Mouse click at: ", mouse.x, mouse.y);
-
+    console.log("Pos rot : ", ressort_rot.w / Math.PI);
 });
 
 canvas.addEventListener("mouseup", function (event) {
@@ -102,6 +109,7 @@ canvas.addEventListener("mouseup", function (event) {
 canvas.addEventListener("mousemove", function (event) {
     if (mouse.down) {
         [mouse.x, mouse.y] = mouseToClipSpace(event.clientX, event.clientY);
+        mouse.w = Math.acos(mouse.x);
         console.log("Mouse moved to: ", mouse.x, mouse.y, mouse.down);
     }
 });
@@ -118,23 +126,30 @@ function loop() {
     ressort.velocity.y += (mouse.y - ressort.y) * ressort.k_mass - ressort.velocity.y * ressort.drag;
     ressort.x += ressort.velocity.x;
     ressort.y += ressort.velocity.y;
-
+    if (mouse.down) {
+        ressort_rot.velocity += (mouse.w - ressort_rot.w) * ressort_rot.k_inert - ressort_rot.velocity * ressort_rot.drag;
+        sphere_rot += ressort_rot.velocity;
+        ressort_rot.w += ressort_rot.velocity;
+    } else {
+        ressort_rot.velocity += - ressort_rot.velocity * ressort_rot.drag;
+        sphere_rot += ressort_rot.velocity;
+    }
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(position_ptr, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(position_ptr);
     TimeDelta = Date.now() - startTime;
-    gl.uniform1f(rotation_ptr, TimeDelta * base_speed);
+    gl.uniform1f(rotation_ptr, sphere_rot);
     // Draw points
     gl.drawArrays(gl.POINTS, 0, 1000);
     //if (mouse.down) {
-        gl.useProgram(click_program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufferClick);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([ressort.x, ressort.y, 0.0, 0.0]), gl.STATIC_DRAW);
-        gl.vertexAttribPointer(pos_click, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(pos_click);
+    /*gl.useProgram(click_program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferClick);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([ressort.x, ressort.y, 0.0, 0.0]), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(pos_click, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(pos_click);
 
-        gl.drawArrays(gl.POINTS, 0, 1);
+    gl.drawArrays(gl.POINTS, 0, 1);*/
     //};
     requestAnimationFrame(loop);
 }
